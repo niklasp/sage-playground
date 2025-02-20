@@ -1,0 +1,30 @@
+{
+  "version": 0,
+  "descriptorPath": ".papi/descriptors",
+  "entries": {
+    "wnd": {
+      "chain": "westend2",
+      "metadata": ".papi/metadata/wnd.scale"
+    },
+    "pas": {
+      "chain": "paseo",
+      "metadata": ".papi/metadata/pas.scale"
+    },
+    "aju": {
+      "wsUrl": "wss://rpc-paseo.ajuna.network",
+      "metadata": ".papi/metadata/aju.scale"
+    },
+    "ajusage": {
+      "wsUrl": "ws://127.0.0.1:9944",
+      "metadata": ".papi/metadata/ajusage.scale"
+    },
+    "ajudev": {
+      "wsUrl": "ws://127.0.0.1:9944",
+      "metadata": ".papi/metadata/ajudev.scale"
+    },
+    "casinojam": {
+      "wsUrl": "ws://127.0.0.1:9944",
+      "metadata": ".papi/metadata/casinojam.scale"
+    }
+  }
+}
