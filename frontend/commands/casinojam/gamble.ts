@@ -42,7 +42,7 @@ export const gamble: Command = {
 
       // retrieve all required assets for the gamble extrinsic:
       // player, tracker, seat, machine
-      const casinoJamAssets = await api.query.CasinoJamSage.Assets.getEntries();
+      let casinoJamAssets = await api.query.CasinoJamSage.Assets.getEntries();
       const players = casinoJamAssets.filter(
         ({ value: [, asset] }) =>
           asset.variant.type === "Player" &&
@@ -97,7 +97,9 @@ export const gamble: Command = {
         multiplierDisplay
       );
 
-      const result = await tx.signAndSubmit(activeSigner);
+      const result = await tx.signAndSubmit(activeSigner, {
+        at: "best",
+      });
       stopSignal.shouldStop = true;
       await animationPromise;
 
@@ -105,6 +107,7 @@ export const gamble: Command = {
 
       if (result.ok) {
         // get the results from the tracker
+        casinoJamAssets = await api.query.CasinoJamSage.Assets.getEntries();
         const tracker = casinoJamAssets.find(
           ({ value: [owner, asset] }) =>
             asset.variant.type === "Player" &&
@@ -112,10 +115,7 @@ export const gamble: Command = {
             owner === selectedAccount.address
         );
 
-        console.log("tracker", tracker);
-
         const playerValue = tracker?.value[1].variant.value as PlayerType;
-
         const trackerValue = playerValue.value as PlayerTrackerType;
 
         const slotResults = [
