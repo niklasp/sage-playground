@@ -51,15 +51,15 @@ export const rent: Command = {
     console.info("result machine deposit", result);
 
     if (result.ok) {
-      return `✅ Machine ${machineIdArg} rented with multiplier ${rentDuration}`;
+      return `✅ Machine ${machineIdArg} rented with multiplier ${rentDuration.type}`;
     } else {
       const err = result.dispatchError as CasinojamDispatchError;
       return formatTransitionError(err);
     }
   },
   help: {
-    command: "rent [machine_id] ([multiplier])",
+    command: "rent [machine_id] ([duration])",
     description:
-      "Rent a machine with id [machine_id] (with a multiplier of [multiplier])",
+      "Rent a machine with id [machine_id] (with a duration of [duration])",
   },
 };

@@ -22,6 +22,7 @@ import { machines } from "@/commands/casinojam/machines";
 import { machine } from "@/commands/casinojam/machine";
 import { seats } from "@/commands/casinojam/seats";
 import { seat } from "./casinojam/seat";
+import { remove } from "./casinojam/remove";
 
 export const commands: Record<string, Command> = {
   // casinojam transition commands
@@ -31,6 +32,7 @@ export const commands: Record<string, Command> = {
   reserve,
   release,
   kick,
+  remove,
   gamble,
 
   // casinojam info commands
