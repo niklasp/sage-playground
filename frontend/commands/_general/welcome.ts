@@ -2,10 +2,14 @@ import type { Command } from "@/types/command";
 import { rainbowize } from "@/lib/utils";
 
 const casinoJamAscii = `
- ▗▄▄▖▗▞▀▜▌ ▄▄▄ ▄ ▄▄▄▄   ▄▄▄  ▗▖ ▗▄▖ ▗▖  ▗▖
-▐▌   ▝▚▄▟▌▀▄▄  ▄ █   █ █   █ ▐▌▐▌ ▐▌▐▛▚▞▜▌
-▐▌        ▄▄▄▀ █ █   █ ▀▄▄▄▀ ▐▌▐▛▀▜▌▐▌  ▐▌
-▝▚▄▄▖          █          ▗▄▄▞▘▐▌ ▐▌▐▌  ▐▌
+▗▞▀▘▗▞▀▜▌ ▄▄▄ ▄ ▄▄▄▄   ▄▄▄  
+▝▚▄▖▝▚▄▟▌▀▄▄  ▄ █   █ █   █ 
+         ▄▄▄▀ █ █   █ ▀▄▄▄▀ 
+              █             
+   ▗▖▗▞▀▜▌▄▄▄▄  
+   ▐▌▝▚▄▟▌█ █ █ 
+▄  ▐▌     █   █ 
+▀▄▄▞▘           
 `;
 
 const welcomeMessage =
