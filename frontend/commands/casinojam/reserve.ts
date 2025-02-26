@@ -2,11 +2,11 @@ import type { Command, CommandContext } from "@/types/command";
 import {
   formatTransitionError,
   isCasinoJamApi,
-  validateMultiplierType,
+  validateReservationDurationType,
 } from "./util";
 import { CasinojamDispatchError } from "@polkadot-api/descriptors";
 
-export const DEFAULT_MULTIPLIER = "V1";
+export const DEFAULT_RESERVE_DURATION = "Hour1";
 
 export const reserve: Command = {
   execute: async (args: string[], context: CommandContext) => {
@@ -21,10 +21,10 @@ export const reserve: Command = {
     }
 
     const machineIdArg = args[0];
-    const multiplierArg = args[1] ?? DEFAULT_MULTIPLIER;
+    const reserveDurationArg = args[1] ?? DEFAULT_RESERVE_DURATION;
 
     // is the multiplier valid?
-    const multiplier = validateMultiplierType(multiplierArg);
+    const reserveDuration = validateReservationDurationType(reserveDurationArg);
 
     // does the asset exist?
     const casinoJamAssets = await api.query.CasinoJamSage.Assets.getEntries();
@@ -70,7 +70,7 @@ export const reserve: Command = {
     const tx = await api.tx.CasinoJamSage.state_transition({
       transition_id: {
         type: "Reserve",
-        value: multiplier,
+        value: reserveDuration,
       },
       asset_ids: [playerMeId, seatToReserveId],
       payment_kind: undefined,
@@ -80,15 +80,15 @@ export const reserve: Command = {
     console.info("result reserve", result);
 
     if (result.ok) {
-      return `✅ Seat ${seatToReserveId} reserved for player ${playerMeId} on machine ${machineIdArg}`;
+      return `✅ Seat ${seatToReserveId} reserved for player ${playerMeId} on machine ${machineIdArg} for ${reserveDuration}`;
     } else {
       const err = result.dispatchError.value as CasinojamDispatchError;
       return formatTransitionError(err);
     }
   },
   help: {
-    command: "reserve [machine_id] ([multiplier])",
+    command: "reserve [machine_id] ([reservation_duration])",
     description:
-      "Reserve a seat on a machine with id [machine_id] (with a multiplier of [multiplier])",
+      "Reserve a seat on a machine with id [machine_id] (with a reservation duration of [reservation_duration])",
   },
 };

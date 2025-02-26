@@ -15,6 +15,18 @@ export type MultiplierValuesType = MultiplierType extends { type: infer T }
   ? T
   : never;
 
+export type RentDurationType = SeatType["rent_duration"];
+export type RentDurationValuesType = RentDurationType extends { type: infer T }
+  ? T
+  : never;
+
+export type ReservationDurationType = SeatType["reservation_duration"];
+export type ReservationDurationValuesType = ReservationDurationType extends {
+  type: infer T;
+}
+  ? T
+  : never;
+
 export type TokenType = MachineType["value_1_factor"];
 export type TokenValuesType = TokenType extends { type: infer T } ? T : never;
 

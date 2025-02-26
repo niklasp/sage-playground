@@ -10,11 +10,16 @@ import {
   MultiplierType,
   MultiplierValuesType,
   PlayerUI,
+  RentDurationType,
+  RentDurationValuesType,
+  ReservationDurationType,
+  ReservationDurationValuesType,
   TokenType,
   TokenValuesType,
   UnpackedSlotResult,
 } from "./types";
 import { CasinojamDispatchError } from "../../.papi/descriptors/dist/casinojam";
+
 export const MULTIPLIER_VALUES: MultiplierValuesType[] = [
   "V0",
   "V1",
@@ -28,6 +33,33 @@ export const MULTIPLIER_VALUES: MultiplierValuesType[] = [
   "V9",
 ];
 
+export const RENT_DURATION_VALUES: RentDurationValuesType[] = [
+  // don't allow "none" rent duration
+  "Day1",
+  "Days2",
+  "Days3",
+  "Days5",
+  "Days7",
+  "Days14",
+  "Days28",
+  "Days56",
+  "Days112",
+];
+
+export const RESERVATION_DURATION_VALUES: ReservationDurationValuesType[] = [
+  // don't allow "none" reservation duration
+  "Mins5",
+  "Mins10",
+  "Mins15",
+  "Mins30",
+  "Mins45",
+  "Hour1",
+  "Hours2",
+  "Hours3",
+  "Hours4",
+  "Hours6",
+];
+
 export function validateMultiplierType(multiplier: string): MultiplierType {
   if (!MULTIPLIER_VALUES.includes(multiplier as MultiplierValuesType)) {
     throw new Error(
@@ -35,6 +67,73 @@ export function validateMultiplierType(multiplier: string): MultiplierType {
     );
   }
   return Enum(multiplier as MultiplierValuesType);
+}
+
+export function validateRentDurationType(
+  duration: string | number
+): RentDurationType {
+  // Extract valid days from RENT_DURATION_VALUES
+  const validDays = RENT_DURATION_VALUES.map((value) => {
+    if (value === "Day1") return 1;
+    return Number(value.replace("Days", ""));
+  });
+
+  // Handle numeric input
+  if (typeof duration === "number" || !isNaN(Number(duration))) {
+    const days = Number(duration);
+
+    if (!validDays.includes(days)) {
+      throw new Error(
+        `Invalid rent duration in days. Valid values are: ${validDays.join(
+          ", "
+        )}`
+      );
+    }
+
+    return Enum(
+      days === 1 ? "Day1" : (`Days${days}` as RentDurationValuesType)
+    );
+  }
+
+  // Handle string input (case insensitive)
+  const normalizedInput = String(duration).toLowerCase();
+  const matchedValue = RENT_DURATION_VALUES.find(
+    (value) =>
+      value.toLowerCase() === normalizedInput ||
+      `days${value.replace(/^days?/i, "")}`.toLowerCase() === normalizedInput
+  );
+
+  if (!matchedValue) {
+    throw new Error(
+      `Invalid rent duration. Valid values are (in days): ${validDays.join(
+        ", "
+      )}`
+    );
+  }
+
+  return Enum(matchedValue);
+}
+
+export function validateReservationDurationType(
+  duration: string
+): ReservationDurationType {
+  // Convert input to string and normalize case
+  const normalizedInput = String(duration).toLowerCase();
+
+  // Find matching value (case insensitive)
+  const matchedValue = RESERVATION_DURATION_VALUES.find(
+    (value) => value.toLowerCase() === normalizedInput
+  );
+
+  if (!matchedValue) {
+    throw new Error(
+      `Invalid reservation duration. Valid values are: ${RESERVATION_DURATION_VALUES.join(
+        ", "
+      )}`
+    );
+  }
+
+  return Enum(matchedValue as ReservationDurationValuesType);
 }
 
 export const TOKEN_TYPE_VALUES: TokenValuesType[] = [
