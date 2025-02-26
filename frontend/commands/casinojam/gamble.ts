@@ -131,7 +131,7 @@ export const gamble: Command = {
           rewardUnit: chainInfo?.properties.tokenSymbol,
         });
       } else {
-        const err = result.dispatchError.value as CasinojamDispatchError;
+        const err = result.dispatchError as CasinojamDispatchError;
         return formatTransitionError(err);
       }
     }

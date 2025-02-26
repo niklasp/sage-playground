@@ -82,7 +82,7 @@ export const reserve: Command = {
     if (result.ok) {
       return `✅ Seat ${seatToReserveId} reserved for player ${playerMeId} on machine ${machineIdArg} for ${reserveDuration}`;
     } else {
-      const err = result.dispatchError.value as CasinojamDispatchError;
+      const err = result.dispatchError as CasinojamDispatchError;
       return formatTransitionError(err);
     }
   },

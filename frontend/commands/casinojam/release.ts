@@ -63,7 +63,7 @@ export const release: Command = {
     if (result.ok) {
       return `✅ Seat ${seatToReleaseId} released for player ${playerMeId}`;
     } else {
-      const err = result.dispatchError.value as CasinojamDispatchError;
+      const err = result.dispatchError as CasinojamDispatchError;
       return formatTransitionError(err);
     }
   },
