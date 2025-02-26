@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useState } from "react";
 
 interface CommandPromptProps {
@@ -16,6 +17,37 @@ export default function CommandPrompt({
   onCtrlC,
 }: CommandPromptProps) {
   const [command, setCommand] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input on mount
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  // Focus input when tab/window becomes active
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && inputRef.current) {
+        inputRef.current.focus();
+      }
+    };
+
+    const handleFocus = () => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.ctrlKey && e.key === "c") {
@@ -48,6 +80,7 @@ export default function CommandPrompt({
         onKeyDown={handleKeyDown}
         className="bg-transparent focus:outline-none flex-1"
         autoFocus
+        ref={inputRef}
       />
     </div>
   );

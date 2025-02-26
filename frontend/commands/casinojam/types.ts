@@ -1,5 +1,4 @@
-import { CasinojamQueries } from "@polkadot-api/descriptors";
-import { SS58String } from "polkadot-api";
+import { CasinojamErrors, CasinojamQueries } from "@polkadot-api/descriptors";
 
 export type AssetWithKey = CasinojamQueries["CasinoJamSage"]["Assets"]["Value"];
 export type AssetType = AssetWithKey[1];
@@ -36,33 +35,6 @@ export type PlayerTrackerType = Extract<
   { type: "Tracker" }
 >["value"];
 
-export type PlayerUI = {
-  id: number;
-  genesis: number;
-  owner: SS58String;
-  tracker: number | undefined;
-  funds?: bigint;
-  seat?: number;
-  machines: number[];
-};
-
-export type MachineUI = {
-  id: number;
-  genesis: number;
-  owner: SS58String;
-  seat_limit: number;
-  seat_linked: number;
-  value_1_factor: string;
-  value_2_factor: string;
-  value_3_factor: string;
-  value_1_mul: string;
-  value_2_mul: string;
-  value_3_mul: string;
-  sub_variant: MachineType["sub_variant"];
-  seats: number[];
-  funds?: bigint;
-};
-
 export interface UnpackedSlotResult {
   slot1: number;
   slot2: number;
@@ -70,3 +42,8 @@ export interface UnpackedSlotResult {
   bonus1: number;
   bonus2: number;
 }
+
+export type CasinoJamSageError = CasinojamErrors["CasinoJamSage"];
+
+export type CasinojamTransitionError =
+  CasinojamErrors["CasinoJamSage"]["Transition"];

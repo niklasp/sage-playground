@@ -1,4 +1,3 @@
-import { trimAddress } from "@/lib/utils";
 import { AvailableApis } from "@/types";
 import type { casinojam } from "@polkadot-api/descriptors";
 import { Enum, type TypedApi } from "polkadot-api";
@@ -6,10 +5,8 @@ import { Enum, type TypedApi } from "polkadot-api";
 import {
   AssetWithKey,
   MachineType,
-  MachineUI,
   MultiplierType,
   MultiplierValuesType,
-  PlayerUI,
   RentDurationType,
   RentDurationValuesType,
   ReservationDurationType,
@@ -19,7 +16,7 @@ import {
   UnpackedSlotResult,
 } from "./types";
 import { CasinojamDispatchError } from "../../.papi/descriptors/dist/casinojam";
-
+import { TRANSITION_ERROR_CODES } from "./errors";
 export const MULTIPLIER_VALUES: MultiplierValuesType[] = [
   "V0",
   "V1",
@@ -246,40 +243,35 @@ ${result.join("\n")}
 +-------------+--------+`;
 }
 
-export function displayPlayer(player: PlayerUI) {
-  return `| id: ${player.id}
-| genesis: ${player.genesis}
-| owner: ${trimAddress(player.owner, 6)}
-| tracker: ${player.tracker}
-| funds: ${player.funds}
-| seat: ${player.seat ?? "none"}
-| machines: [${player.machines.join(", ")}]
-`;
-}
-
-export function displayMachine(machine: MachineUI) {
-  return `| id: ${machine.id}
-| genesis: ${machine.genesis}
-| owner: ${trimAddress(machine.owner, 6)}
-| funds: ${machine.funds}
-| seat_limit: ${machine.seat_limit}
-| seat_linked: ${machine.seat_linked}
-| value_1_factor: ${machine.value_1_factor}
-| value_2_factor: ${machine.value_2_factor}
-| value_3_factor: ${machine.value_3_factor}
-| value_1_mul: ${machine.value_1_mul}
-| value_2_mul: ${machine.value_2_mul}
-| value_3_mul: ${machine.value_3_mul}
-| sub_variant: ${machine.sub_variant.type} ${JSON.stringify(
-    machine.sub_variant
-  )}
-| seats: [${machine.seats.join(", ")}]
-`;
-}
-
 export function formatTransitionError(error: CasinojamDispatchError) {
-  console.warn("error", error);
-  return `❌ Transition failed: ${error.type} ${error.value?.type} ${error.value?.value?.type} ${error.value?.value?.value?.code}`;
+  console.warn("Execution Error", error);
+
+  if (error.type === "Module" && error.value?.type === "CasinoJamSage") {
+    if (error.value.value.type === "Transition") {
+      const errorCode = (error.value.value.value as { code: number }).code;
+
+      if (
+        !TRANSITION_ERROR_CODES[
+          errorCode as keyof typeof TRANSITION_ERROR_CODES
+        ]
+      ) {
+        return `❌ Transition failed: Unknown error code ${errorCode}`;
+      }
+
+      const errorMessage =
+        TRANSITION_ERROR_CODES[
+          errorCode as keyof typeof TRANSITION_ERROR_CODES
+        ];
+
+      return `❌ Transition failed: ${errorMessage}`;
+    }
+  }
+
+  if (error?.value?.type) {
+    return `❌ Transition failed: ${error.type} ${error.value.type}`;
+  }
+
+  return `❌ Transition failed: ${error.type || "Unknown error"}`;
 }
 
 /**

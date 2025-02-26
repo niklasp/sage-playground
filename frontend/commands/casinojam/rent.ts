@@ -5,12 +5,8 @@ import {
   validateRentDurationType,
 } from "./util";
 import { CasinojamDispatchError } from "@polkadot-api/descriptors";
-import { RentDurationType } from "./types";
 
-export const DEFAULT_RENT_DURATION: RentDurationType = {
-  type: "Days7",
-  value: undefined,
-};
+export const DEFAULT_RENT_DURATION = "Days1";
 
 export const rent: Command = {
   execute: async (args: string[], context: CommandContext) => {
@@ -57,7 +53,7 @@ export const rent: Command = {
     if (result.ok) {
       return `✅ Machine ${machineIdArg} rented with multiplier ${rentDuration}`;
     } else {
-      const err = result.dispatchError.value as CasinojamDispatchError;
+      const err = result.dispatchError as CasinojamDispatchError;
       return formatTransitionError(err);
     }
   },
