@@ -67,7 +67,7 @@ export const remove: Command = {
     }
   },
   help: {
-    command: "remove seat",
+    command: "remove [seat_id]",
     description: "Remove your seat from a machine",
   },
 };

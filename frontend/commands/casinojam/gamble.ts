@@ -141,7 +141,7 @@ export const gamble: Command = {
     return "Invalid command, use gamble &lt;multiplier&gt;";
   },
   help: {
-    command: "gamble <multiplier>",
+    command: "gamble ([multiplier])",
     description: "Try your luck at the slot machine",
   },
 };

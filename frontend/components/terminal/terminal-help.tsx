@@ -10,6 +10,7 @@ export function TerminalHelp({ className }: { className?: string }) {
     commands.create.help,
     commands.deposit.help,
     commands.rent.help,
+    commands.remove.help,
     commands.reserve.help,
     commands.release.help,
     commands.kick.help,

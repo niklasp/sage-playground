@@ -22,7 +22,6 @@ export default function Home() {
         >
           <HelpCircle className="h-[1.2rem] w-[1.2rem]" />
         </Button>
-        <ThemeToggle />
         <WalletSelect />
       </div>
       <div className="flex flex-col justify-center h-[80vh] max-w-4xl w-full mx-4 transition-all duration-500 ease-in-out">
