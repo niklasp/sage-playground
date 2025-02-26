@@ -11,6 +11,8 @@ import { CasinojamDispatchError } from "@polkadot-api/descriptors";
 import { gambleInfo } from "./gamble-info";
 import { animateSpinning } from "@/lib/animate-spinning";
 
+const DEFAULT_MULTIPLIER = "V1";
+
 export const gamble: Command = {
   execute: async (
     args: string[],
@@ -37,7 +39,7 @@ export const gamble: Command = {
       // COMMAND: gamble
       const chainInfo = await client?.getChainSpecData();
 
-      const multiplierArg = args[0].toUpperCase();
+      const multiplierArg = args[0]?.toUpperCase() ?? DEFAULT_MULTIPLIER;
       const multiplier = validateMultiplierType(multiplierArg);
 
       // retrieve all required assets for the gamble extrinsic:
