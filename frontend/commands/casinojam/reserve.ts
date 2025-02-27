@@ -2,6 +2,7 @@ import type { Command, CommandContext } from "@/types/command";
 import {
   formatTransitionError,
   isCasinoJamApi,
+  RESERVATION_DURATION_VALUES,
   validateReservationDurationType,
 } from "./util";
 import { CasinojamDispatchError } from "@polkadot-api/descriptors";
@@ -17,13 +18,15 @@ export const reserve: Command = {
     if (!selectedAccount) return "No selected account";
 
     if (args.length !== 2 && args.length !== 1) {
-      return "Error: The syntax is 'reserve [machine_id] or reserve [machine_id] [multiplier]'";
+      return `Error: The syntax is 'reserve [machine_id] or reserve [machine_id] [duration]'.
+      
+Valid durations are: ${RESERVATION_DURATION_VALUES.join(", ")}`;
     }
 
     const machineIdArg = args[0];
     const reserveDurationArg = args[1] ?? DEFAULT_RESERVE_DURATION;
 
-    // is the multiplier valid?
+    // is the duration valid?
     const reserveDuration = validateReservationDurationType(reserveDurationArg);
 
     // does the asset exist?
@@ -80,7 +83,7 @@ export const reserve: Command = {
     console.info("result reserve", result);
 
     if (result.ok) {
-      return `✅ Seat ${seatToReserveId} reserved for player ${playerMeId} on machine ${machineIdArg} for ${reserveDuration}`;
+      return `✅ Seat ${seatToReserveId} reserved for player ${playerMeId} on machine ${machineIdArg} for ${reserveDuration.type}`;
     } else {
       const err = result.dispatchError as CasinojamDispatchError;
       return formatTransitionError(err);

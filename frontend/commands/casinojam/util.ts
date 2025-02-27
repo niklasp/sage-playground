@@ -169,13 +169,13 @@ export type SlotSymbol = "🍒" | "🍊" | "🍋" | "7️⃣" | "💎";
 export const symbols: SlotSymbol[] = ["🍒", "🍊", "🍋", "7️⃣", "💎"];
 
 export function generateRandomWheels(): number[] {
-  return [
-    Math.floor(Math.random() * 0xf), // slot1: 0-15
-    Math.floor(Math.random() * 0xf), // slot2: 0-15
-    Math.floor(Math.random() * 0xf), // slot3: 0-15
-    Math.floor(Math.random() * 0x3), // bonus1: 0-3
-    Math.floor(Math.random() * 0x3), // bonus2: 0-3
-  ];
+  // Generate random bytes (0-255)
+  const randomBytes = Array.from({ length: 5 }, () =>
+    Math.floor(Math.random() * 256)
+  );
+
+  // Map random bytes to slot values using the same distribution as Rust
+  return randomBytes.map((byte) => getSlot(byte));
 }
 
 export function generateSlotMachine({
@@ -263,7 +263,7 @@ export function formatTransitionError(error: CasinojamDispatchError) {
           errorCode as keyof typeof TRANSITION_ERROR_CODES
         ];
 
-      return `❌ Transition failed: ${errorMessage}`;
+      return `❌ Transition failed: ${errorMessage} (code: ${errorCode})`;
     }
   }
 
@@ -353,6 +353,20 @@ export function unpackSlotResult(packedResult: number): UnpackedSlotResult {
   return result;
 }
 
+// New function to match Rust's get_slot logic
+export function getSlot(hashByte: number): number {
+  if (hashByte < 52) return 0;
+  if (hashByte < 95) return 1;
+  if (hashByte < 133) return 2;
+  if (hashByte < 167) return 3;
+  if (hashByte < 195) return 4;
+  if (hashByte < 218) return 5;
+  if (hashByte < 235) return 6;
+  if (hashByte < 247) return 7;
+  if (hashByte < 253) return 8;
+  return 9;
+}
+
 // Helper to convert slot numbers to symbols
 export function getSlotSymbol(slotNumber: number): string {
   const symbols = ["🍒", "🍋", "🍊", "🍇", "💎", "7️⃣", "🎰", "🎲", "🃏", "🎯"];
@@ -363,29 +377,30 @@ export function calculateSpinReward(
   minReward: number,
   spin: UnpackedSlotResult
 ): number {
+  // Factor multiplier for matching slots
   const factorMultiplier = (() => {
     if (spin.slot1 === spin.slot2 && spin.slot2 === spin.slot3) {
       switch (spin.slot1) {
         case 0:
-          return 2;
+          return 0;
         case 1:
-          return 4;
+          return 5;
         case 2:
-          return 8;
+          return 10;
         case 3:
-          return 16;
+          return 25;
         case 4:
-          return 1;
+          return 50;
         case 5:
-          return 32;
+          return 100;
         case 6:
-          return 64;
+          return 200;
         case 7:
-          return 128;
+          return 500;
         case 8:
-          return 256;
+          return 750;
         case 9:
-          return 512;
+          return 1500;
         default:
           return 0;
       }
@@ -393,17 +408,26 @@ export function calculateSpinReward(
     return 0;
   })();
 
-  const spinFactor = minReward * factorMultiplier;
+  // Use Math.imul for overflow-safe multiplication
+  const spinFactor = Math.imul(minReward, factorMultiplier);
 
-  const bonusFactor = (() => {
+  // Bonus multiplier logic
+  const bonusMultiplier = (() => {
     if (spin.bonus1 === spin.bonus2) {
       switch (spin.bonus1) {
-        case 4:
+        case 1:
           return 1;
+        case 2:
+        case 3:
+        case 4:
         case 5:
           return 2;
         case 6:
+        case 7:
+        case 8:
           return 4;
+        case 9:
+          return 8;
         default:
           return 0;
       }
@@ -411,19 +435,28 @@ export function calculateSpinReward(
     return 0;
   })();
 
+  const bonusFactor = Math.imul(minReward, bonusMultiplier);
+
+  // Check if it's a full line - slot1 matches bonus1 and both rewards are positive
   const isFullLine =
-    spin.slot1 === spin.slot2 &&
-    spin.slot2 === spin.slot3 &&
-    spin.slot3 === spin.bonus1 &&
-    spin.bonus1 === spin.bonus2;
+    spin.slot1 === spin.bonus1 && spinFactor > 0 && bonusFactor > 0;
 
   let reward = spinFactor;
 
-  if (isFullLine) reward = spinFactor * (128 + bonusFactor);
-  else if (spinFactor > 0 && bonusFactor > 0)
-    reward = spinFactor + 512 * bonusFactor;
+  if (spinFactor > 0) {
+    if (isFullLine) {
+      // Implement saturating_div and saturating_mul
+      const divisor = bonusFactor || 1; // Avoid division by zero
+      reward = Math.imul(spinFactor, Math.floor(128 / divisor));
+    } else if (bonusFactor > 0) {
+      reward = spinFactor + Math.imul(32, bonusFactor);
+    }
+  }
 
-  if (reward === 0 && spin.bonus1 === 4 && spin.bonus2 === 4) reward = 1;
+  // Fallback reward calculation
+  if (reward === 0) {
+    reward = Math.floor(bonusFactor / (minReward || 1)); // Avoid division by zero
+  }
 
   return reward;
 }

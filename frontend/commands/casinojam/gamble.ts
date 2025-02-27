@@ -35,113 +35,112 @@ export const gamble: Command = {
     if (!activeSigner || !selectedAccount)
       return "Please connect and select an account first";
 
-    if (args.length === 1) {
-      // COMMAND: gamble
-      const chainInfo = await client?.getChainSpecData();
+    if (args.length > 1) return "Invalid command, use gamble ([multiplier])";
 
-      const multiplierArg = args[0]?.toUpperCase() ?? DEFAULT_MULTIPLIER;
-      const multiplier = validateMultiplierType(multiplierArg);
+    // COMMAND: gamble
+    const chainInfo = await client?.getChainSpecData();
 
-      // retrieve all required assets for the gamble extrinsic:
-      // player, tracker, seat, machine
-      let casinoJamAssets = await api.query.CasinoJamSage.Assets.getEntries();
-      const players = casinoJamAssets.filter(
-        ({ value: [, asset] }) =>
-          asset.variant.type === "Player" &&
-          asset.variant.value.type === "Human"
-      );
-      const me = players.find(
-        ({ value: [owner] }) => owner === selectedAccount.address
-      );
+    const multiplierArg = args[0]?.toUpperCase() ?? DEFAULT_MULTIPLIER;
+    const multiplier = validateMultiplierType(multiplierArg);
 
-      if (!me) return "You are not a player";
+    // retrieve all required assets for the gamble extrinsic:
+    // player, tracker, seat, machine
+    let casinoJamAssets = await api.query.CasinoJamSage.Assets.getEntries();
+    const players = casinoJamAssets.filter(
+      ({ value: [, asset] }) =>
+        asset.variant.type === "Player" && asset.variant.value.type === "Human"
+    );
+    const me = players.find(
+      ({ value: [owner] }) => owner === selectedAccount.address
+    );
 
-      const playerId = me?.value[1].id;
-      const meTrackerId = casinoJamAssets.filter(
+    if (!me) return "You are not a player";
+
+    const playerId = me?.value[1].id;
+    const meTrackerId = casinoJamAssets.filter(
+      ({ value: [owner, asset] }) =>
+        asset.variant.type === "Player" &&
+        asset.variant.value.type === "Tracker" &&
+        owner === selectedAccount.address
+    )?.[0]?.value[1].id;
+
+    const currentSeat = casinoJamAssets.find(
+      ({ value: [, asset] }) =>
+        asset.variant.type === "Seat" &&
+        asset.variant.value.player_id === me?.value[1].id
+    );
+
+    if (!currentSeat) return "You are not in a seat";
+
+    const currentSeatId = currentSeat?.value[1].id;
+    const currentMachineId = (currentSeat?.value[1].variant.value as SeatType)
+      .machine_id;
+
+    if (!currentSeatId || !currentMachineId)
+      return "You are not in a seat or machine";
+
+    if (!meTrackerId) return "You dont have a tracker";
+
+    // craft the gamble params
+    const tx = api.tx.CasinoJamSage.state_transition({
+      transition_id: { type: "Gamble", value: multiplier },
+      asset_ids: [playerId, meTrackerId, currentSeatId, currentMachineId],
+      payment_kind: undefined,
+    });
+
+    const multiplierDisplay = `${multiplierArg
+      .toUpperCase()
+      .replace("V", "")}x`;
+
+    const stopSignal = { shouldStop: false };
+    const animationPromise = animateSpinning(
+      onProcessing,
+      stopSignal,
+      multiplierDisplay
+    );
+
+    const result = await tx.signAndSubmit(activeSigner, {
+      at: "best",
+    });
+    stopSignal.shouldStop = true;
+    await animationPromise;
+
+    console.info("result gamble", result);
+
+    if (result.ok) {
+      // get the results from the tracker
+      casinoJamAssets = await api.query.CasinoJamSage.Assets.getEntries();
+      const tracker = casinoJamAssets.find(
         ({ value: [owner, asset] }) =>
           asset.variant.type === "Player" &&
           asset.variant.value.type === "Tracker" &&
           owner === selectedAccount.address
-      )?.[0]?.value[1].id;
-
-      const currentSeat = casinoJamAssets.find(
-        ({ value: [, asset] }) =>
-          asset.variant.type === "Seat" &&
-          asset.variant.value.player_id === me?.value[1].id
       );
 
-      if (!currentSeat) return "You are not in a seat";
+      const playerValue = tracker?.value[1].variant.value as PlayerType;
+      const trackerValue = playerValue.value as PlayerTrackerType;
 
-      const currentSeatId = currentSeat?.value[1].id;
-      const currentMachineId = (currentSeat?.value[1].variant.value as SeatType)
-        .machine_id;
+      console.info("tracker after gamble", trackerValue);
 
-      if (!currentSeatId || !currentMachineId)
-        return "You are not in a seat or machine";
+      const slotResults = [
+        unpackSlotResult(trackerValue.slot_a_result),
+        unpackSlotResult(trackerValue.slot_b_result),
+        unpackSlotResult(trackerValue.slot_c_result),
+        unpackSlotResult(trackerValue.slot_d_result),
+      ];
 
-      if (!meTrackerId) return "You dont have a tracker";
-
-      // craft the gamble params
-      const tx = api.tx.CasinoJamSage.state_transition({
-        transition_id: { type: "Gamble", value: multiplier },
-        asset_ids: [playerId, meTrackerId, currentSeatId, currentMachineId],
-        payment_kind: undefined,
+      return displaySlotMachine({
+        multiplier: multiplierDisplay,
+        wheels: slotResults,
+        rewardUnit: chainInfo?.properties.tokenSymbol,
       });
-
-      const multiplierDisplay = `${multiplierArg
-        .toUpperCase()
-        .replace("V", "")}x`;
-
-      const stopSignal = { shouldStop: false };
-      const animationPromise = animateSpinning(
-        onProcessing,
-        stopSignal,
-        multiplierDisplay
-      );
-
-      const result = await tx.signAndSubmit(activeSigner, {
-        at: "best",
-      });
-      stopSignal.shouldStop = true;
-      await animationPromise;
-
-      console.info("result gamble", result);
-
-      if (result.ok) {
-        // get the results from the tracker
-        casinoJamAssets = await api.query.CasinoJamSage.Assets.getEntries();
-        const tracker = casinoJamAssets.find(
-          ({ value: [owner, asset] }) =>
-            asset.variant.type === "Player" &&
-            asset.variant.value.type === "Tracker" &&
-            owner === selectedAccount.address
-        );
-
-        const playerValue = tracker?.value[1].variant.value as PlayerType;
-        const trackerValue = playerValue.value as PlayerTrackerType;
-
-        const slotResults = [
-          unpackSlotResult(trackerValue.slot_a_result),
-          unpackSlotResult(trackerValue.slot_b_result),
-          unpackSlotResult(trackerValue.slot_c_result),
-          unpackSlotResult(trackerValue.slot_d_result),
-        ];
-
-        return displaySlotMachine({
-          multiplier: multiplierDisplay,
-          wheels: slotResults,
-          rewardUnit: chainInfo?.properties.tokenSymbol,
-        });
-      } else {
-        const err = result.dispatchError as CasinojamDispatchError;
-        return formatTransitionError(err);
-      }
+    } else {
+      const err = result.dispatchError as CasinojamDispatchError;
+      return formatTransitionError(err);
     }
-
-    return "Invalid command, use gamble &lt;multiplier&gt;";
   },
   help: {
-    command: "gamble ([multiplier])",
+    command: "gamble [multiplier]",
     description: "Try your luck at the slot machine",
   },
 };

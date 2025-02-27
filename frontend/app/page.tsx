@@ -1,7 +1,6 @@
 "use client";
 
 import { WalletSelect } from "@/components/account/wallet-select";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
 import Terminal from "@/components/terminal/terminal";
 import { TerminalHelp } from "@/components/terminal/terminal-help";
 import { Button } from "@/components/ui/button";

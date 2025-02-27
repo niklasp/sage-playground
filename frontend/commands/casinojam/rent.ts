@@ -2,6 +2,7 @@ import type { Command, CommandContext } from "@/types/command";
 import {
   formatTransitionError,
   isCasinoJamApi,
+  RENT_DURATION_VALUES,
   validateRentDurationType,
 } from "./util";
 import { CasinojamDispatchError } from "@polkadot-api/descriptors";
@@ -17,7 +18,8 @@ export const rent: Command = {
       return "Please connect and select an account first";
 
     if (args.length !== 2 && args.length !== 1) {
-      return "Error: The syntax is 'rent [machine_id] or rent [machine_id] [rent_duration]'";
+      return `Error: The syntax is 'rent [machine_id] or rent [machine_id] [rent_duration]'. 
+Valid durations are: ${RENT_DURATION_VALUES.join(", ")}`;
     }
 
     const machineIdArg = args[0];
@@ -51,7 +53,7 @@ export const rent: Command = {
     console.info("result machine deposit", result);
 
     if (result.ok) {
-      return `✅ Machine ${machineIdArg} rented with multiplier ${rentDuration.type}`;
+      return `✅ Machine ${machineIdArg} rented a seat for ${rentDuration.type}`;
     } else {
       const err = result.dispatchError as CasinojamDispatchError;
       return formatTransitionError(err);
@@ -60,6 +62,6 @@ export const rent: Command = {
   help: {
     command: "rent [machine_id] ([duration])",
     description:
-      "Rent a machine with id [machine_id] (with a duration of [duration])",
+      "Rent a machine seat with id [machine_id] (with a duration of [duration])",
   },
 };
