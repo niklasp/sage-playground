@@ -1,10 +1,11 @@
 import type { Command, CommandContext } from "@/types/command";
 import { formatTransitionError, isCasinoJamApi } from "./util";
 import { CasinojamDispatchError } from "@polkadot-api/descriptors";
+import { SeatType } from "./types";
 
 export const DEFAULT_MULTIPLIER = "V1";
 
-export const release: Command = {
+export const remove: Command = {
   execute: async (args: string[], context: CommandContext) => {
     const { api, activeSigner, selectedAccount } = context;
 
@@ -12,48 +13,46 @@ export const release: Command = {
     if (!activeSigner) return "No active signer";
     if (!selectedAccount) return "No selected account";
 
-    if (args.length > 0) {
-      return "Error: The syntax is 'release'";
+    if (args.length !== 1) {
+      return "Error: The syntax is 'remove <seat_id>'";
     }
 
     const casinoJamAssets = await api.query.CasinoJamSage.Assets.getEntries();
 
-    // does the player exist?
-    const playerMeId = casinoJamAssets.find(
+    const seatIdArg = args[0];
+
+    if (!seatIdArg) {
+      return "Error: No seat ID provided";
+    }
+
+    // does the seat exist?
+    const seat = casinoJamAssets.find(
       ({ value: [owner, asset] }) =>
-        asset.variant.type === "Player" &&
-        asset.variant.value.type === "Human" &&
-        owner === selectedAccount.address
-    )?.value[1].id;
-
-    if (!playerMeId) {
-      return "Error: Player not found";
-    }
-
-    const occupiedSeat = casinoJamAssets.find(
-      ({ value: [, asset] }) =>
         asset.variant.type === "Seat" &&
-        asset.variant.value.player_id === playerMeId
-    );
+        owner === selectedAccount.address &&
+        asset.id === parseInt(seatIdArg)
+    )?.value[1].variant.value as SeatType;
 
-    if (!occupiedSeat) {
-      return "Error: Seat not found";
+    if (!seat) {
+      return "Error: Seat not found or not owned by you";
     }
 
-    const seatToReleaseId = occupiedSeat.value[1].id;
+    const machineId = seat.machine_id;
 
-    if (!seatToReleaseId) {
-      return "Error: Seat not found";
+    if (!machineId) {
+      return "Error: Machine not found";
     }
 
-    console.info(`releasing seat ${seatToReleaseId} for player ${playerMeId}`);
+    const seatToRemoveId = parseInt(seatIdArg);
+
+    console.info(`removing seat ${seatToRemoveId} from machine ${machineId}`);
 
     const tx = await api.tx.CasinoJamSage.state_transition({
       transition_id: {
-        type: "Release",
+        type: "Return",
         value: undefined,
       },
-      asset_ids: [playerMeId, seatToReleaseId],
+      asset_ids: [machineId, seatToRemoveId],
       payment_kind: undefined,
     });
 
@@ -61,14 +60,14 @@ export const release: Command = {
     console.info("result release", result);
 
     if (result.ok) {
-      return `✅ Seat ${seatToReleaseId} released for player ${playerMeId}`;
+      return `✅ Seat ${seatToRemoveId} removed from machine ${machineId}`;
     } else {
       const err = result.dispatchError as CasinojamDispatchError;
       return formatTransitionError(err);
     }
   },
   help: {
-    command: "release",
-    description: "Release your occupied seat",
+    command: "remove [seat_id]",
+    description: "Remove your seat from a machine",
   },
 };

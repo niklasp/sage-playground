@@ -76,7 +76,7 @@ export const deposit: Command = {
     if (result.ok) {
       return `✅ Token ${tokenType.type} deposited to ${targetArg} ${idArg}`;
     } else {
-      const err = result.dispatchError.value as CasinojamDispatchError;
+      const err = result.dispatchError as CasinojamDispatchError;
       return formatTransitionError(err);
     }
   },

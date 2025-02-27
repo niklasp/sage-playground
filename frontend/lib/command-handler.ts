@@ -54,11 +54,11 @@ export async function executeCommand(
     return `Command not found: ${firstWord}`;
   } catch (error) {
     if (error instanceof Error) {
-      console.error("Command execution error:", error);
+      console.warn("Command execution error:", error);
       return `❌ Error: ${error.message}`;
     }
 
-    console.error("Unknown command error:", error);
+    console.warn("Unknown command error:", error);
     return "❌ An unexpected error occurred";
   }
 }

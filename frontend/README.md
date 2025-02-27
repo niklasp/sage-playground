@@ -51,6 +51,22 @@ bottom drive obey lake curtain smoke basket hold race lonely fit walk//Alice
 bottom drive obey lake curtain smoke basket hold race lonely fit walk//Bob
 ```
 
+### Getting started with CasinoJAM
+
+Use the following commands to get you started with CasinoJAM
+```bash
+create player #create a new player
+create machine #create a new machine
+players #find the id of your player (you can also use 'player me' command)
+machines #find the id of all machines including your created one
+deposit machine <your_machine_id> T10000 #deposit 10000 tokens to your machine for payouts
+deposit player <your_player_id> T10000 #deposit 10000 tokens to your player to play with
+rent
+reserve
+gamble 
+```
+
+
 ### Adding new commands
 
 All commands the cli accepts are in the `/commands` folder. Add a new command by
