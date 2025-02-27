@@ -164,18 +164,49 @@ export function isCasinoJamApi(
   );
 }
 
-export type SlotSymbol = "🍒" | "🍊" | "🍋" | "7️⃣" | "💎";
+export type SlotSymbol =
+  | "⚪"
+  | "🍒"
+  | "🍋"
+  | "🍊"
+  | "🍑"
+  | "🍉"
+  | "🍇"
+  | "🔔"
+  | "💰"
+  | "💎";
 
-export const symbols: SlotSymbol[] = ["🍒", "🍊", "🍋", "7️⃣", "💎"];
+export const symbols: SlotSymbol[] = [
+  "⚪",
+  "🍒",
+  "🍋",
+  "🍊",
+  "🍉",
+  "🍇",
+  "🔔",
+  "💰",
+  "💎",
+];
 
-export function generateRandomWheels(): number[] {
-  // Generate random bytes (0-255)
-  const randomBytes = Array.from({ length: 5 }, () =>
-    Math.floor(Math.random() * 256)
-  );
+export function generateRandomWheels(n: number): UnpackedSlotResult[] {
+  // Generate n random unpacked slot results
+  return Array(n)
+    .fill(null)
+    .map(() => {
+      // Generate random bytes (0-255) for each slot
+      const randomBytes = Array.from({ length: 5 }, () =>
+        Math.floor(Math.random() * 256)
+      );
 
-  // Map random bytes to slot values using the same distribution as Rust
-  return randomBytes.map((byte) => getSlot(byte));
+      // Map random bytes to slot values using the same distribution as Rust
+      return {
+        slot1: getSlot(randomBytes[0]),
+        slot2: getSlot(randomBytes[1]),
+        slot3: getSlot(randomBytes[2]),
+        bonus1: getSlot(randomBytes[3]) % 4, // Limit to 0-3 for bonus slots
+        bonus2: getSlot(randomBytes[4]) % 4, // Limit to 0-3 for bonus slots
+      };
+    });
 }
 
 export function generateSlotMachine({
@@ -205,7 +236,7 @@ export function displaySlotMachine({
   rewardUnit,
   isSpinning = false,
 }: {
-  multiplier: string;
+  multiplier: number;
   wheels: UnpackedSlotResult[];
   rewardUnit: string;
   isSpinning?: boolean;
@@ -237,7 +268,7 @@ export function displaySlotMachine({
   }
 
   return `
-${multiplier}
+x${multiplier}
 +-------------+--------+
 ${result.join("\n")}
 +-------------+--------+`;
@@ -369,7 +400,7 @@ export function getSlot(hashByte: number): number {
 
 // Helper to convert slot numbers to symbols
 export function getSlotSymbol(slotNumber: number): string {
-  const symbols = ["🍒", "🍋", "🍊", "🍇", "💎", "7️⃣", "🎰", "🎲", "🃏", "🎯"];
+  const symbols = ["⚪", "🍒", "🍋", "🍊", "🍉", "🍇", "🔔", "💰", "💎"];
   return symbols[slotNumber] || "❓";
 }
 
