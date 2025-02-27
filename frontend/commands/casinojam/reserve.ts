@@ -14,8 +14,8 @@ export const reserve: Command = {
     const { api, activeSigner, selectedAccount } = context;
 
     if (!api || !isCasinoJamApi(api)) return "No CasinoJam API available";
-    if (!activeSigner) return "No active signer";
-    if (!selectedAccount) return "No selected account";
+    if (!activeSigner || !selectedAccount)
+      return "Please connect and select an account first";
 
     if (args.length !== 2 && args.length !== 1) {
       return `Error: The syntax is 'reserve [machine_id] or reserve [machine_id] [duration]'.

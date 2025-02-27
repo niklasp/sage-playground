@@ -12,8 +12,8 @@ export const deposit: Command = {
     const { api, activeSigner, selectedAccount } = context;
 
     if (!api || !isCasinoJamApi(api)) return "No CasinoJam API available";
-    if (!activeSigner) return "No active signer";
-    if (!selectedAccount) return "No selected account";
+    if (!activeSigner || !selectedAccount)
+      return "Please connect and select an account first";
 
     if (args.length !== 3) {
       return "Error: The syntax is 'deposit [player|machine] [id] [token_type]'";

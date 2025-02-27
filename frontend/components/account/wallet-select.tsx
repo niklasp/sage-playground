@@ -15,6 +15,7 @@ import { cn, trimAddress } from "@/lib/utils";
 import { Identicon } from "@polkadot/react-identicon";
 import { allSubstrateWallets, SubstrateWalletPlatform } from "./wallets";
 import { isMobile } from "@/lib/is-mobile";
+import Image from "next/image";
 
 export function WalletSelect() {
   const {
@@ -86,7 +87,7 @@ export function WalletSelect() {
             className={cn(
               "flex flex-col items-start gap-2 transition-[max-height,opacity]",
               selectedExtensionName === undefined
-                ? "opacity-100 max-h-[9999px] duration-500 delay-[0ms,200ms]"
+                ? "opacity-100 max-h-[9999px] duration-500 delay-200"
                 : "opacity-0 max-h-0 overflow-hidden duration-0"
             )}
           >
@@ -104,7 +105,7 @@ export function WalletSelect() {
                 }}
               >
                 <div className="flex flex-row items-center justify-start gap-4">
-                  <img
+                  <Image
                     src={wallet.logoUrls[0]}
                     alt={wallet.name}
                     className="w-6 h-6"
@@ -126,7 +127,7 @@ export function WalletSelect() {
               "flex flex-col items-start gap-2 transition-[max-height,opacity]",
               selectedExtensionName === undefined
                 ? "opacity-0 max-h-0 overflow-hidden duration-0"
-                : "opacity-100 max-h-[9999px] duration-500 delay-[0ms,200ms]"
+                : "opacity-100 max-h-[9999px] duration-500 delay-200"
             )}
           >
             {accounts.length > 0 ? (
