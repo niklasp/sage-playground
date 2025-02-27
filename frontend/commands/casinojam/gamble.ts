@@ -11,7 +11,7 @@ import { CasinojamDispatchError } from "@polkadot-api/descriptors";
 import { gambleInfo } from "./gamble-info";
 import { animateSpinning } from "@/lib/animate-spinning";
 
-const DEFAULT_MULTIPLIER = "V1";
+const DEFAULT_MULTIPLIER = "V4";
 
 export const gamble: Command = {
   execute: async (
@@ -37,7 +37,6 @@ export const gamble: Command = {
 
     if (args.length > 1) return "Invalid command, use gamble ([multiplier])";
 
-    // COMMAND: gamble
     const chainInfo = await client?.getChainSpecData();
 
     const multiplierArg = args[0]?.toUpperCase() ?? DEFAULT_MULTIPLIER;
