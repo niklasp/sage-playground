@@ -181,6 +181,7 @@ export const symbols: SlotSymbol[] = [
   "🍒",
   "🍋",
   "🍊",
+  "🍑",
   "🍉",
   "🍇",
   "🔔",
@@ -400,7 +401,7 @@ export function getSlot(hashByte: number): number {
 
 // Helper to convert slot numbers to symbols
 export function getSlotSymbol(slotNumber: number): string {
-  const symbols = ["⚪", "🍒", "🍋", "🍊", "🍉", "🍇", "🔔", "💰", "💎"];
+  const symbols = ["⚪", "🍒", "🍋", "🍊", "🍑", "🍉", "🍇", "🔔", "💰", "💎"];
   return symbols[slotNumber] || "❓";
 }
 
