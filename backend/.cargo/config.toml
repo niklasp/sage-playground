@@ -1,0 +1,13 @@
+[alias]
+build-sage-node            = "build --release --no-default-features --bin sage-playground-node"
+build-sage-node-benchmarks = [ "build-sage-node", "--features", "runtime-benchmarks" ]
+
+[target.'cfg(feature = "cargo-clippy")']
+rustflags = [
+    "-Aclippy::derive_partial_eq_without_eq",
+    "-Aclippy::too_many_arguments",
+    "-Aclippy::type_complexity",
+    "-Aclippy::uninlined-format-args",
+    "-Aclippy::unnecessary_cast",
+    "-Aclippy::large_enum_variant",
+]
