@@ -1,0 +1,114 @@
+[workspace.package]
+authors      = [ "Ajuna Network <https://github.com/ajuna-network>" ]
+edition      = "2021"
+homepage     = "https://ajuna.io"
+repository   = "https://github.com/ajuna-network/Ajuna"
+version      = "0.1.0"
+rust-version = "1.81.0"
+
+[workspace.metadata.psvm]
+version = "polkadot-stable2409"
+
+[workspace]
+resolver = "2"
+members = [
+    "node",
+    "runtime",
+    "games/*",
+]
+
+[workspace.dependencies]
+# General
+clap        = { version = "4.4.6", default-features = false }
+futures     = { version = "0.3.28", default-features = false }
+jsonrpsee   = { version = "0.24.7", default-features = false }
+serde_json  = { version = "1.0.113", default-features = false }
+
+# Parity codec
+parity-scale-codec = { version = "3.0.0", default-features = false }
+scale-info         = { version = "2.1.1", default-features = false }
+
+# Substrate
+frame-benchmarking                         = { version = "38.0.0", default-features = false }
+frame-benchmarking-cli                     = { version = "43.0.0" }
+frame-executive                            = { version = "38.0.0", default-features = false }
+frame-metadata-hash-extension              = { version = "0.6.0", default-features = false }
+frame-support                              = { version = "38.0.0", default-features = false }
+frame-system                               = { version = "38.0.0", default-features = false }
+frame-system-benchmarking                  = { version = "38.0.0", default-features = false }
+frame-system-rpc-runtime-api               = { version = "34.0.0", default-features = false }
+frame-try-runtime                          = { version = "0.44.0", default-features = false }
+pallet-aura                                = { version = "37.0.0", default-features = false }
+pallet-assets                              = { version = "40.0.0", default-features = false }
+pallet-balances                            = { version = "39.0.0", default-features = false }
+pallet-grandpa                             = { version = "38.0.0", default-features = false }
+pallet-insecure-randomness-collective-flip = { version = "26.0.0", default-features = false }
+pallet-sudo                                = { version = "38.0.0", default-features = false }
+pallet-timestamp                           = { version = "37.0.0", default-features = false }
+pallet-transaction-payment                 = { version = "38.0.0", default-features = false }
+pallet-transaction-payment-rpc             = { version = "41.0.0" }
+pallet-transaction-payment-rpc-runtime-api = { version = "38.0.0", default-features = false }
+sc-basic-authorship                        = { version = "0.45.0" }
+sc-cli                                     = { version = "0.47.0" }
+sc-client-api                              = { version = "37.0.0" }
+sc-consensus                               = { version = "0.44.0" }
+sc-consensus-aura                          = { version = "0.45.0" }
+sc-consensus-grandpa                       = { version = "0.30.0" }
+sc-offchain                                = { version = "40.0.0" }
+sc-service                                 = { version = "0.46.0" }
+sc-telemetry                               = { version = "25.0.0" }
+sc-transaction-pool                        = { version = "37.0.0" }
+sc-transaction-pool-api                    = { version = "37.0.0" }
+sc-executor                                = { version = "0.40.1", default-features = false }
+sc-network                                 = { version = "0.45.0" }
+sp-api                                     = { version = "34.0.0", default-features = false }
+sp-block-builder                           = { version = "34.0.0", default-features = false }
+sp-blockchain                              = { version = "37.0.1" }
+sp-consensus                               = { version = "0.40.0", default-features = false }
+sp-consensus-aura                          = { version = "0.40.0", default-features = false }
+sp-consensus-grandpa                       = { version = "21.0.0", default-features = false }
+sp-core                                    = { version = "34.0.0", default-features = false }
+sp-genesis-builder                         = { version = "0.15.1", default-features = false }
+sp-inherents                               = { version = "34.0.0", default-features = false }
+sp-keyring                                 = { version = "39.0.0" }
+sp-offchain                                = { version = "34.0.0", default-features = false }
+sp-io                                      = { version = "38.0.0", default-features = false }
+sp-runtime                                 = { version = "39.0.1", default-features = false }
+sp-session                                 = { version = "36.0.0", default-features = false }
+sp-std                                     = { version = "14.0.0", default-features = false }
+sp-storage                                 = { version = "21.0.0", default-features = false }
+sp-timestamp                               = { version = "34.0.0", default-features = false }
+sp-transaction-pool                        = { version = "34.0.0", default-features = false }
+sp-version                                 = { version = "37.0.0", default-features = false }
+substrate-build-script-utils               = { version = "11.0.0" }
+substrate-frame-rpc-system                 = { version = "39.0.0" }
+substrate-wasm-builder                     = { version = "24.0.1" }
+
+# Runtime
+sage-playground-runtime = { path = "runtime" }
+
+# Games
+game-battle-mogs = { path = "games/battle_mogs", default-features = false }
+game-casino-jam  = { path = "games/casino_jam", default-features = false }
+
+# Ajuna Primitives
+ajuna-payment-handler = { git = "https://github.com/ajuna-network/ajuna-pallets.git", branch = "develop", default-features = false }
+ajuna-primitives      = { git = "https://github.com/ajuna-network/ajuna-pallets.git", branch = "develop", default-features = false }
+
+# Ajuna Pallets
+pallet-ajuna-affiliates = { git = "https://github.com/ajuna-network/ajuna-pallets.git", branch = "develop", default-features = false }
+pallet-ajuna-seasons    = { git = "https://github.com/ajuna-network/ajuna-pallets.git", branch = "develop", default-features = false }
+pallet-ajuna-tournament = { git = "https://github.com/ajuna-network/ajuna-pallets.git", branch = "develop", default-features = false }
+
+# SAGE
+pallet-sage = { git = "https://github.com/ajuna-network/ajuna-pallets.git", branch = "develop", default-features = false }
+sage-api    = { git = "https://github.com/ajuna-network/ajuna-pallets.git", branch = "develop", default-features = false }
+
+[profile.production]
+codegen-units = 1
+inherits = "release"
+lto = true
+
+[profile.release]
+opt-level = 3
+panic = "unwind"
